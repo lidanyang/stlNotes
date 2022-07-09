@@ -128,23 +128,32 @@ class char_traits
 };
 
 template <typename _Tp>
-struct MyAllocator
+struct MyAllocatorWithoutRebind
 {
     typedef _Tp value_type;
-    typedef std::size_t size_type;
-    typedef std::ptrdiff_t difference_type;
-    typedef _Tp *pointer;
-    typedef const _Tp *const_pointer;
-    typedef _Tp &reference;
-    typedef const _Tp &const_reference;
-
-    // template<typename Up>
-    // struct rebind {
-    //     using other = MyAllocator<int>;
-    // };
 };
-static_assert(std::is_same_v<basic_string<char, char_traits<char>, MyAllocator<int>>::_Char_alloc_type, MyAllocator<char>>);
 
+template <typename _Tp>
+struct MyAllocatorWithRebind
+{
+    typedef _Tp value_type;
+    template<typename Up>
+    struct rebind {
+        using other = MyAllocatorWithRebind<int>;
+    };
+};
+
+struct MyAllocatorWithRebindNonTemp
+{
+    typedef int value_type;
+    template<typename Up>
+    struct rebind {
+        using other = MyAllocatorWithRebindNonTemp;
+    };
+};
+static_assert(std::is_same_v<basic_string<char, char_traits<char>, MyAllocatorWithoutRebind<int>>::_Char_alloc_type, MyAllocatorWithoutRebind<char>>);
+static_assert(std::is_same_v<basic_string<char, char_traits<char>, MyAllocatorWithRebind<int>>::_Char_alloc_type, MyAllocatorWithRebind<int>>);
+static_assert(std::is_same_v<basic_string<char, char_traits<char>, MyAllocatorWithRebindNonTemp>::_Char_alloc_type, MyAllocatorWithRebindNonTemp>);
 int main()
 {
     return 0;
