@@ -65,3 +65,20 @@ record my learning notes of stl
         
           此时_Char_alloc_type为MyAllocator<_CharT>，此时自定义的allocator必须为模板类，
           因为此时是通过__replace_first_arg_t将MyAllocator的第一个模板参数直接替换为_CharT得到rebind后的类型的；
+
+2. _If_sv在string中的作用
+
+    [Why is SFINAE for one of the std::basic_string constructors so restrictive?](https://stackoverflow.com/questions/70591571/why-is-sfinae-for-one-of-the-stdbasic-string-constructors-so-restrictive)
+
+    [LWG 2758. std::string{}.assign("ABCDE", 0, 1) is ambiguous](https://cplusplus.github.io/LWG/lwg-defects.html#2758)
+
+    [LWG 2946. LWG 2758's resolution missed further corrections](https://cplusplus.github.io/LWG/issue2946)
+
+    主要用处是为了解决歧义，在C++17引入string_view之后，曾经有这么两个构造函数
+    ```c++
+    basic_string& assign(const  basic_string& str, size_type pos, size_type n = npos);
+
+    basic_string& assign(basic_string_view<charT, traits> sv, size_type pos, size_type n = npos);
+    ```
+    此时如果传入const char *或者char *，两个函数在编译器看来匹配度一样，就出现了歧义，编译失败。因此为了
+    解决这种歧义，可以对所有形式(const char *, char *, string,...)的调用都写一个assign函数，但是这样太麻烦。因此引入了模板，并通过对模板参数添加_If_sv的constraints，消除歧义。
