@@ -67,13 +67,20 @@ record my learning notes of stl
           因为此时是通过__replace_first_arg_t将MyAllocator的第一个模板参数直接替换为_CharT得到rebind后的类型的；
 
 2. _If_sv在string中的作用
-
     [Why is SFINAE for one of the std::basic_string constructors so restrictive?](https://stackoverflow.com/questions/70591571/why-is-sfinae-for-one-of-the-stdbasic-string-constructors-so-restrictive)
 
     [LWG 2758. std::string{}.assign("ABCDE", 0, 1) is ambiguous](https://cplusplus.github.io/LWG/lwg-defects.html#2758)
 
     [LWG 2946. LWG 2758's resolution missed further corrections](https://cplusplus.github.io/LWG/issue2946)
 
+    ```c++
+    template<typename _Tp, typename _Res>
+    using _If_sv = enable_if_t<
+      __and_<is_convertible<const _Tp&, __sv_type>,
+      __not_<is_convertible<const _Tp*, const basic_string*>>,
+      __not_<is_convertible<const _Tp&, const _CharT*>>>::value,
+      _Res>;
+    ```
     主要用处是为了解决歧义，在C++17引入string_view之后，曾经有这么两个构造函数
     ```c++
     basic_string& assign(const  basic_string& str, size_type pos, size_type n = npos);

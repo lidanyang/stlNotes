@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.h": "cpp",
+        "decimal": "cpp",
+        "*.tcc": "cpp",
+        "iostream": "cpp"
+    }
+}
